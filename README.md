@@ -8,3 +8,4 @@ Entity Group Spawner tool for Garry's Mod
 
 
 I made this back in 2017 with the goal of preventing people from spamming the creator tool just to get a group of NPCs to blast.
+The code is mostly unchanged, with the exception of a few small updates.
