@@ -1644,8 +1644,6 @@ if CLIENT then
         ['model'] = 4,
     }
 
-    local gmod_npcweapon = GetConVar("gmod_npcweapon")
-
     hook.Add('SpawnmenuIconMenuOpen', 'egs_spawnmenu_option', function(menu, icon, contentType)
         local type_id = valid_types[contentType]
         if not type_id then return end
