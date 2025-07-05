@@ -392,11 +392,7 @@ end
 For compatability with other spawnmenu addons. See above: spawnmenu_incompatible
 --]]
 function TOOL:getLoadedEntity()
-  if self:GetOwner():GetInfoNum("egs_spawnmenu_incompatible", 0) == 1 then
-    return self:GetOwner():GetInfo("creator_name"), self:GetOwner():GetInfo("creator_arg"), self:GetOwner():GetInfoNum("creator_type", 0)
-  else
     return self:GetClientInfo("ent_name"), self:GetClientInfo("ent_weapon"), self:GetClientNumber("ent_type", 0)
-  end
 end
 
 --[[
@@ -1558,7 +1554,7 @@ if CLIENT then
                 end
             end
 
-            RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )
+            RunConsoleCommand( "gmod_tool", "egs" )
 
             if entName ~= nil then
                 RunConsoleCommand( "egs_ent_name", entName )
