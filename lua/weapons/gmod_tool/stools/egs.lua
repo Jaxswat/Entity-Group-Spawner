@@ -973,12 +973,6 @@ function TOOL.BuildCPanel( rootPanel )
     rootPanel:AddItem(squareSettings)
     rootPanel:AddItem(circleSettings)
 
-    rootPanel:Help( "" )
-    rootPanel:AddControl( "CheckBox", { Label = "Spawn Menu Compatability", Command = "egs_spawnmenu_incompatible" } )
-    rootPanel:Help( "Use this if you do not see the EGS option when right clicking an entity tile in the Spawn Menu." )
-    rootPanel:Help( "Just use 'Spawn using toolgun' to load entities, then click the EGS tab in 'Tools' to use EGS." )
-    rootPanel:Help( "" )
-
 end
 
 function TOOL:copyObject(orig)
@@ -1584,7 +1578,7 @@ if CLIENT then
 
     -- Add Creator option to entity context menu.
     properties.Add( "CreatorSpawn", {
-        MenuLabel = "Spawn using Toolgun",
+        MenuLabel = "#spawnmenu.menu.spawn_with_toolgun",
         Order = 1,
         MenuIcon = creator_icon,
 
@@ -1638,302 +1632,32 @@ if CLIENT then
 
     -------------------------------------------
     -------------------------------------------
-     --      Spawn Menu MODIFICATIONS
+     --      Spawn Menu
     -------------------------------------------
     -------------------------------------------
 
-    spawnmenu.AddContentType( "entity", function( container, obj )
-
-        if ( !obj.material ) then return end
-        if ( !obj.nicename ) then return end
-        if ( !obj.spawnname ) then return end
-
-        local icon = vgui.Create( "ContentIcon", container )
-        icon:SetContentType( "entity" )
-        icon:SetSpawnName( obj.spawnname )
-        icon:SetName( obj.nicename )
-        icon:SetMaterial( obj.material )
-        icon:SetAdminOnly( obj.admin )
-        icon:SetColor( Color( 205, 92, 92, 255 ) )
-        icon.DoClick = function()
-            RunConsoleCommand( "gm_spawnsent", obj.spawnname )
-            surface.PlaySound( "ui/buttonclickrelease.wav" )
-        end
-        icon.OpenMenu = function( icon )
-
-            local menu = DermaMenu()
-                menu:AddOption( "Copy to Clipboard", function() SetClipboardText( obj.spawnname ) end ):SetImage( copy_icon )
-                menu:AddOption( "Spawn Group using EGS", function() RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )  RunConsoleCommand( "egs_ent_type", "0" ) RunConsoleCommand( "egs_ent_name", obj.spawnname ) end ):SetImage( egs_icon )
-                menu:AddOption( "Spawn Using Toolgun", function() RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "0" ) RunConsoleCommand( "creator_name", obj.spawnname ) end ):SetImage( creator_icon )
-                menu:AddSpacer()
-                menu:AddOption( "Delete", function() icon:Remove() hook.Run( "SpawnlistContentChanged", icon ) end ):SetImage( delete_icon )
-            menu:Open()
-
-        end
-
-        if ( IsValid( container ) ) then
-            container:Add( icon )
-        end
-
-        return icon
-
-    end )
-
-    spawnmenu.AddContentType( "vehicle", function( container, obj )
-
-        if ( !obj.material ) then return end
-        if ( !obj.nicename ) then return end
-        if ( !obj.spawnname ) then return end
-
-        local icon = vgui.Create( "ContentIcon", container )
-        icon:SetContentType( "vehicle" )
-        icon:SetSpawnName( obj.spawnname )
-        icon:SetName( obj.nicename )
-        icon:SetMaterial( obj.material )
-        icon:SetAdminOnly( obj.admin )
-        icon:SetColor( Color( 0, 0, 0, 255 ) )
-        icon.DoClick = function()
-            RunConsoleCommand( "gm_spawnvehicle", obj.spawnname )
-            surface.PlaySound( "ui/buttonclickrelease.wav" )
-        end
-        icon.OpenMenu = function( icon )
-
-            local menu = DermaMenu()
-                menu:AddOption( "Copy to Clipboard", function() SetClipboardText( obj.spawnname ) end ):SetImage( copy_icon )
-                menu:AddOption( "Spawn Group using EGS", function() RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )  RunConsoleCommand( "egs_ent_type", "1" ) RunConsoleCommand( "egs_ent_name", obj.spawnname ) end ):SetImage( egs_icon )
-                menu:AddOption( "Spawn Using Toolgun", function() RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "1" ) RunConsoleCommand( "creator_name", obj.spawnname ) end ):SetImage( creator_icon )
-                menu:AddSpacer()
-                menu:AddOption( "Delete", function() icon:Remove() hook.Run( "SpawnlistContentChanged", icon ) end ):SetImage( delete_icon )
-            menu:Open()
-
-        end
-
-        if ( IsValid( container ) ) then
-            container:Add( icon )
-        end
-
-        return icon
-
-    end )
-
-    local gmod_npcweapon = CreateConVar( "gmod_npcweapon", "", { FCVAR_ARCHIVE } )
-
-    spawnmenu.AddContentType( "npc", function( container, obj )
-
-        if ( !obj.material ) then return end
-        if ( !obj.nicename ) then return end
-        if ( !obj.spawnname ) then return end
-
-        if ( !obj.weapon ) then obj.weapon = { "" } end
-
-        local icon = vgui.Create( "ContentIcon", container )
-        icon:SetContentType( "npc" )
-        icon:SetSpawnName( obj.spawnname )
-        icon:SetName( obj.nicename )
-        icon:SetMaterial( obj.material )
-        icon:SetAdminOnly( obj.admin )
-        icon:SetNPCWeapon( obj.weapon )
-        icon:SetColor( Color( 244, 164, 96, 255 ) )
-
-        icon.DoClick = function()
-
-            local weapon = table.Random( obj.weapon )
-            if ( gmod_npcweapon:GetString() != "" ) then weapon = gmod_npcweapon:GetString() end
-
-            RunConsoleCommand( "gmod_spawnnpc", obj.spawnname, weapon )
-            surface.PlaySound( "ui/buttonclickrelease.wav" )
-        end
-
-        icon.OpenMenu = function( icon )
-
-            local menu = DermaMenu()
-
-                local weapon = table.Random( obj.weapon )
-                if ( gmod_npcweapon:GetString() != "" ) then weapon = gmod_npcweapon:GetString() end
-
-                menu:AddOption( "Copy to Clipboard", function() SetClipboardText( obj.spawnname ) end ):SetImage( copy_icon )
-                menu:AddOption( "Spawn Group using EGS", function() RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )  RunConsoleCommand( "egs_ent_type", "2" ) RunConsoleCommand( "egs_ent_name", obj.spawnname ) RunConsoleCommand( "egs_ent_weapon", weapon ) end ):SetImage( egs_icon )
-                menu:AddOption( "Spawn Using Toolgun", function() RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "2" ) RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", weapon ) end ):SetImage( creator_icon )
-                menu:AddSpacer()
-                menu:AddOption( "Delete", function() icon:Remove() hook.Run( "SpawnlistContentChanged", icon ) end ):SetImage( delete_icon )
-            menu:Open()
-
-        end
-
-        if ( IsValid( container ) ) then
-            container:Add( icon )
-        end
-
-        return icon
-
-    end )
-
-    spawnmenu.AddContentType( "weapon", function( container, obj )
-
-        if ( !obj.material ) then return end
-        if ( !obj.nicename ) then return end
-        if ( !obj.spawnname ) then return end
-
-        local icon = vgui.Create( "ContentIcon", container )
-        icon:SetContentType( "weapon" )
-        icon:SetSpawnName( obj.spawnname )
-        icon:SetName( obj.nicename )
-        icon:SetMaterial( obj.material )
-        icon:SetAdminOnly( obj.admin )
-        icon:SetColor( Color( 135, 206, 250, 255 ) )
-        icon.DoClick = function()
-
-            RunConsoleCommand( "gm_giveswep", obj.spawnname )
-            surface.PlaySound( "ui/buttonclickrelease.wav" )
-
-        end
-
-        icon.DoMiddleClick = function()
-
-            RunConsoleCommand( "gm_spawnswep", obj.spawnname )
-            surface.PlaySound( "ui/buttonclickrelease.wav" )
-
-        end
-
-        icon.OpenMenu = function( icon )
-
-            local menu = DermaMenu()
-                menu:AddOption( "Copy to Clipboard", function() SetClipboardText( obj.spawnname ) end ):SetImage( copy_icon )
-                menu:AddOption( "Spawn Group using EGS", function() RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )  RunConsoleCommand( "egs_ent_type", "3" ) RunConsoleCommand( "egs_ent_name", obj.spawnname ) end ):SetImage( egs_icon )
-                menu:AddOption( "Spawn Using Toolgun", function() RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "3" ) RunConsoleCommand( "creator_name", obj.spawnname ) end ):SetImage( creator_icon )
-                menu:AddSpacer()
-                menu:AddOption( "Delete", function() icon:Remove() hook.Run( "SpawnlistContentChanged", icon ) end ):SetImage( delete_icon )
-            menu:Open()
-
-        end
-
-        if ( IsValid( container ) ) then
-            container:Add( icon )
-        end
-
-        return icon
-
-    end )
-
-    spawnmenu.AddContentType( "model", function( container, obj )
-
-        local icon = vgui.Create( "SpawnIcon", container )
-
-        if ( obj.body ) then
-            obj.body = string.Trim( tostring(obj.body), "B" )
-        end
-
-        if ( obj.wide ) then
-            icon:SetWide( obj.wide )
-        end
-
-        if ( obj.tall ) then
-            icon:SetTall( obj.tall )
-        end
-
-        icon:InvalidateLayout( true )
-
-        icon:SetModel( obj.model, obj.skin or 0, obj.body )
-
-        icon:SetTooltip( string.Replace( string.GetFileFromFilename(obj.model), ".mdl", "" ) )
-
-        icon.DoClick = function( icon ) surface.PlaySound( "ui/buttonclickrelease.wav") RunConsoleCommand( "gm_spawn", icon:GetModelName(), icon:GetSkinID() or 0, icon:GetBodyGroup() or "" ) end
-        icon.OpenMenu = function( icon )
-
-            function checkInstalledPropLauncher()
-              if file.Exists( "addons/prop_launcher_(launch_any_prop)_491910658", "GAME" ) == true then
-                return true
-              elseif file.Exists( "addons/ds_491910658.gma", "GAME" ) == true then
-                return true
-              elseif file.Exists( "weapons/prop_launcher.lua", "LUA" ) == true then
-                return true
-              else
-                return false
-              end
-            end
-
-            local menu = DermaMenu()
-            menu:AddOption( "Copy to Clipboard", function() SetClipboardText( string.gsub(obj.model, "\\", "/") ) end ):SetImage( copy_icon )
-            menu:AddOption( "Spawn Group using EGS", function() RunConsoleCommand( "gmod_tool", "egs" ) RunConsoleCommand( "egs_spawnmenu_incompatible", "0" )  RunConsoleCommand( "egs_ent_type", "4" ) RunConsoleCommand( "egs_ent_name", obj.model ) end ):SetImage( egs_icon )
-            menu:AddOption( "Spawn using Toolgun", function() RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "4" ) RunConsoleCommand( "creator_name", obj.model ) end ):SetImage( creator_icon )
-            if checkInstalledPropLauncher() then
-              menu:AddOption( "Load into Prop Launcher", function() RunConsoleCommand( "pl_model", obj.model ) RunConsoleCommand( "give", "prop_launcher" ) RunConsoleCommand("use", "prop_launcher") end ):SetImage( pl_icon )
-            end
-
-            local submenu = menu:AddSubMenu( "Re-Render", function() icon:RebuildSpawnIcon() end )
-                submenu:AddOption( "This Icon", function() icon:RebuildSpawnIcon() end )
-                submenu:AddOption( "All Icons", function() container:RebuildAll() end )
-
-            menu:AddOption( "Edit Icon", function()
-
-                local editor = vgui.Create( "IconEditor" )
-                editor:SetIcon( icon )
-                editor:Refresh()
-                editor:MakePopup()
-                editor:Center()
-
-            end ):SetImage( "icon16/wrench.png" )
-
-            local ChangeIconSize = function( w, h )
-
-                icon:SetSize( w, h )
-                icon:InvalidateLayout( true )
-                container:OnModified()
-                container:Layout()
-                icon:SetModel( obj.model, obj.skin or 0, obj.body )
-
-            end
-
-            local submenu = menu:AddSubMenu( "Resize", function() end )
-                submenu:AddOption( "64 x 64 (default)", function() ChangeIconSize( 64, 64 ) end )
-                submenu:AddOption( "64 x 128", function() ChangeIconSize( 64, 128 ) end )
-                submenu:AddOption( "64 x 256", function() ChangeIconSize( 64, 256 ) end )
-                submenu:AddOption( "64 x 512", function() ChangeIconSize( 64, 512 ) end )
-                submenu:AddSpacer()
-                submenu:AddOption( "128 x 64", function() ChangeIconSize( 128, 64 ) end )
-                submenu:AddOption( "128 x 128", function() ChangeIconSize( 128, 128 ) end )
-                submenu:AddOption( "128 x 256", function() ChangeIconSize( 128, 256 ) end )
-                submenu:AddOption( "128 x 512", function() ChangeIconSize( 128, 512 ) end )
-                submenu:AddSpacer()
-                submenu:AddOption( "256 x 64", function() ChangeIconSize( 256, 64 ) end )
-                submenu:AddOption( "256 x 128", function() ChangeIconSize( 256, 128 ) end )
-                submenu:AddOption( "256 x 256", function() ChangeIconSize( 256, 256 ) end )
-                submenu:AddOption( "256 x 512", function() ChangeIconSize( 256, 512 ) end )
-                submenu:AddSpacer()
-                submenu:AddOption( "512 x 64", function() ChangeIconSize( 512, 64 ) end )
-                submenu:AddOption( "512 x 128", function() ChangeIconSize( 512, 128 ) end )
-                submenu:AddOption( "512 x 256", function() ChangeIconSize( 512, 256 ) end )
-                submenu:AddOption( "512 x 512", function() ChangeIconSize( 512, 512 ) end )
-
-            menu:AddSpacer()
-            menu:AddOption( "Delete", function() icon:Remove() hook.Run( "SpawnlistContentChanged" ) end ):SetImage( delete_icon )
-            menu:Open()
-
-        end
-
-        icon:InvalidateLayout( true )
-
-        if ( IsValid( container ) ) then
-            container:Add( icon )
-        end
-
-        /*
-
-        if ( iSkin != 0 ) then return end
-
-        local iSkinCount = NumModelSkins( strModel )
-        if ( iSkinCount <= 1 ) then return end
-
-        for i=1, iSkinCount-1, 1 do
-
-            self:AddModel( strModel, i )
-
-        end
-        */
-
-        return icon
-
-    end )
+    local valid_types = {
+        ['entity'] = 0,
+        ['vehicle'] = 1,
+        ['npc'] = 2,
+        ['weapon'] = 3,
+        ['model'] = 4,
+    }
+
+    local gmod_npcweapon = GetConVar("gmod_npcweapon")
+
+    hook.Add('SpawnmenuIconMenuOpen', 'egs_spawnmenu_option', function(menu, icon, contentType)
+        local type_id = valid_types[contentType]
+        if not type_id then return end
+
+        local spawn_name = type_id == 4 and icon.m_strModelName or icon.m_SpawnName
+
+        menu:AddOption('Spawn Using EGS', function()
+            RunConsoleCommand("gmod_tool", "egs") 
+            RunConsoleCommand("egs_ent_type", type_id) 
+            RunConsoleCommand("egs_ent_name", spawn_name) 
+        end):SetImage(egs_icon)
+    end)
 end
 
 -- Phew! That was a lot of code!
