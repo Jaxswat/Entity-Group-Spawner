@@ -93,13 +93,6 @@ TOOL.Description = "#tool.egs.desc"
                 EGS Convars
 --]]------------------------------------------
 
----- Spawn Menu Compatability
------- Some folks were complaining about not seeing
------- the "spawn using EGS" in the spawn menu, so
------- This feature will let them use the "spawn using toolgun"
------- Keeping the convenience without making them uninstall anything.
-TOOL.ClientConVar[ "spawnmenu_incompatible" ] = 0
-
 ---- Current Spawn Shape
 TOOL.ClientConVar[ "ss" ] = 0
 ---- Current Spawn Relative Point
@@ -1640,6 +1633,8 @@ if CLIENT then
         ['model'] = 4,
     }
 
+    local gmod_npcweapon = GetConVar( "gmod_npcweapon" )
+
     hook.Add('SpawnmenuIconMenuOpen', 'egs_spawnmenu_option', function(menu, icon, contentType)
         local type_id = valid_types[contentType]
         if not type_id then return end
@@ -1649,7 +1644,17 @@ if CLIENT then
         menu:AddOption('Spawn Using EGS', function()
             RunConsoleCommand("gmod_tool", "egs") 
             RunConsoleCommand("egs_ent_type", type_id) 
-            RunConsoleCommand("egs_ent_name", spawn_name) 
+            RunConsoleCommand("egs_ent_name", spawn_name)
+            
+            if type_id ~= 2 then return end
+
+            local weapon = gmod_npcweapon:GetString()
+
+            if weapon == '' then
+                weapon = table.Random(icon:GetNPCWeapon() or {}) or ''
+            end
+
+            RunConsoleCommand("egs_ent_weapon", weapon)
         end):SetImage(egs_icon)
     end)
 end
