@@ -1,6 +1,6 @@
 --[[--------------------------------------------------------------------------------------------------------------
 
-    Copyright (C) 2024 by Jaxswat, All rights reserved.
+    Copyright (C) 2025 by Jaxswat, All rights reserved.
 
     No parts of this code or any of its contents may be reproduced, copied, modified or adapted,
     without the prior written consent of the author, unless otherwise indicated for stand-alone materials.
@@ -1658,11 +1658,3 @@ if CLIENT then
         end):SetImage(egs_icon)
     end)
 end
-
--- Phew! That was a lot of code!
--- This is the EOF.
--- Pretty sure that means Eggs of Falcons.
--- Falcons are cool, but kiwis are better.
--- kbye.
--- ~Jax
---------------------------------------------------------------------------------------------------------------------
